@@ -62,10 +62,18 @@ async def load_models():
     try:
         import torch
         from src.models.lstm_model import MCDropoutForecaster
-        # Input size determined at training time — stored in metadata
         import joblib
-        meta = joblib.load("models/lstm/lstm_meta.pkl")
-        MODELS["lstm"] = MCDropoutForecaster.load("models/lstm/", input_size=meta.get("input_size", 30))
+        from pathlib import Path
+
+        lstm_meta_path = Path("models/lstm/lstm_meta.pkl")
+        if lstm_meta_path.exists():
+            meta = joblib.load(str(lstm_meta_path))
+            input_size = meta.get("input_size", 39)
+        else:
+            # Default if metadata missing (model was partially trained/saved)
+            input_size = 39
+
+        MODELS["lstm"] = MCDropoutForecaster.load("models/lstm/", input_size=input_size)
         print("✓ LSTM MC Dropout model loaded")
     except Exception as e:
         print(f"  LSTM load failed: {e}")

@@ -285,23 +285,13 @@ class MCDropoutForecaster:
     @classmethod
     def load(cls, path: str, input_size: int) -> "MCDropoutForecaster":
         meta = joblib.load(f"{path}/lstm_meta.pkl")
-        # Filter out input_size from meta if it exists (avoid duplicate kwargs)
-        meta_kwargs = {k: v for k, v in meta.items() if k != "input_size"}
+        # Filter out input_size and scaler from meta (not init kwargs)
+        meta_kwargs = {k: v for k, v in meta.items() if k not in ["input_size", "scaler_mean", "scaler_std"]}
         forecaster = cls(input_size=input_size, **meta_kwargs)
+        # Restore scaler state
+        forecaster.scaler_mean = meta.get("scaler_mean")
+        forecaster.scaler_std = meta.get("scaler_std")
         forecaster.model.load_state_dict(
             torch.load(f"{path}/lstm_weights.pt", map_location=forecaster.device)
         )
         return forecaster
-# # Replace with your actual Render URL
-# RENDER_URL="https://conformalcast-probabilistic-forecasting.onrender.com"
-
-# curl $RENDER_URL/
-
-# curl $RENDER_URL/health
-
-# curl $RENDER_URL/models
-
-# curl -X POST $RENDER_URL/forecast \
-#   -H "Content-Type: application/json" \
-#   -d '{"horizon": 24, "coverage": 0.80}'
-# curl $RENDER_URL/monitoring/health
