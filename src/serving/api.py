@@ -23,7 +23,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-
+dashboard_path = Path(__file__).parent.parent.parent / "dashboard"
+if dashboard_path.exists():
+    app.mount("/", StaticFiles(directory=str(dashboard_path), html=True), name="dashboard")
+    
 app = FastAPI(
     title="Probabilistic Forecasting Engine",
     description="Production probabilistic time series forecasting with calibrated uncertainty intervals",
