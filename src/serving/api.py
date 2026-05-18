@@ -63,7 +63,7 @@ async def load_models():
         import torch
         from src.models.lstm_model import MCDropoutForecaster
         import joblib
-        from pathlib import Path
+        # from pathlib import Path
 
         lstm_meta_path = Path("models/lstm/lstm_meta.pkl")
         if lstm_meta_path.exists():
