@@ -20,13 +20,9 @@ from typing import Optional, List
 from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-dashboard_path = Path(__file__).parent.parent.parent / "dashboard"
-if dashboard_path.exists():
-    app.mount("/", StaticFiles(directory=str(dashboard_path), html=True), name="dashboard")
-    
+
 app = FastAPI(
     title="Probabilistic Forecasting Engine",
     description="Production probabilistic time series forecasting with calibrated uncertainty intervals",
@@ -40,14 +36,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Serve Frontend Dashboard ────────────────────────────────────────────────
-# Mount the dashboard folder to serve static files
-dashboard_path = Path(__file__).parent / "dashboard"
+# ── Serve Dashboard ──────────────────────────────────────────────────────────
+from fastapi.staticfiles import StaticFiles
+dashboard_path = Path(__file__).parent.parent.parent / "dashboard"
 if dashboard_path.exists():
-    app.mount("/", StaticFiles(directory=str(dashboard_path), html=True), name="static")
-    print(f"✓ Dashboard mounted from {dashboard_path}")
-else:
-    print(f"⚠ Dashboard folder not found at {dashboard_path}")
+    app.mount("/", StaticFiles(directory=str(dashboard_path), html=True), name="dashboard")
 
 # ── Models (loaded on startup) ──────────────────────────────────────────────
 MODELS = {}
@@ -76,6 +69,7 @@ async def load_models():
         import torch
         from src.models.lstm_model import MCDropoutForecaster
         import joblib
+        from pathlib import Path
 
         lstm_meta_path = Path("models/lstm/lstm_meta.pkl")
         if lstm_meta_path.exists():
@@ -134,7 +128,29 @@ STARTUP_TIME = time.time()
 
 # ── Endpoints ───────────────────────────────────────────────────────────────
 
-@app.get("/api/health", response_model=HealthResponse)
+@app.get("/")
+async def root():
+    """API root - returns info about the system."""
+    return {
+        "name": "Probabilistic Forecasting Engine",
+        "version": "1.0",
+        "status": "running",
+        "endpoints": {
+            "health": "/health",
+            "forecast": "/forecast (POST)",
+            "metrics": "/metrics",
+            "models": "/models",
+            "monitoring": {
+                "report": "/monitoring/report",
+                "health": "/monitoring/health"
+            },
+            "docs": "/docs",
+        },
+        "description": "Ensemble probabilistic forecasting with conformal prediction"
+    }
+
+
+@app.get("/health", response_model=HealthResponse)
 async def health():
     return HealthResponse(
         status="healthy" if MODELS else "degraded",
@@ -143,7 +159,7 @@ async def health():
     )
 
 
-@app.post("/api/forecast", response_model=ForecastResponse)
+@app.post("/forecast", response_model=ForecastResponse)
 async def forecast(request: ForecastRequest):
     """
     Generate probabilistic forecast with calibrated prediction intervals.
@@ -251,7 +267,7 @@ def _generate_forecasts(request: ForecastRequest) -> List[IntervalForecast]:
     raise NotImplementedError("Load models first via scripts/train.py")
 
 
-@app.get("/api/metrics")
+@app.get("/metrics")
 async def get_metrics():
     """Return latest evaluation metrics from the most recent evaluation run."""
     metrics_path = Path("results/metrics.json")
@@ -263,7 +279,7 @@ async def get_metrics():
         return json.load(f)
 
 
-@app.get("/api/models")
+@app.get("/models")
 async def get_model_info():
     """Return info about loaded models."""
     return {
@@ -275,7 +291,7 @@ async def get_model_info():
     }
 
 
-@app.get("/api/monitoring/report")
+@app.get("/monitoring/report")
 async def monitoring_report():
     """Get 7-day monitoring summary."""
     try:
@@ -286,7 +302,7 @@ async def monitoring_report():
         return {"error": str(e), "status": "monitoring_unavailable"}
 
 
-@app.get("/api/monitoring/health")
+@app.get("/monitoring/health")
 async def monitoring_health():
     """Quick health check for ops."""
     try:
