@@ -463,4 +463,4 @@ Production-ready. Deployed on Render.com. Monitoring active. Drift detection ena
 
 [LinkedIn](https://linkedin.com/in/foyie) · [Portfolio](https://foyie.github.io/foyie/) · [Email](mailto:chdas@ucsd.edu)
 
-**Last Updated:** May 2024
+**Last Updated:** May 2026
