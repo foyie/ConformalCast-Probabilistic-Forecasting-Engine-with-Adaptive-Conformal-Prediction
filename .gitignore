@@ -5,10 +5,6 @@ __pycache__/
 .DS_Store
 .ipynb_checkpoints/
 # Large model files (train locally, download in Railway)
-models/neuralprophet/
-models/lstm/
-models/lgbm/
-models/conformal/
 
 # Data
 data/raw/
@@ -21,9 +17,6 @@ __pycache__/
 
 # Logs
 *.log
-models/metrics_history.jsonl
 
 # OS
 .DS_Store
-models/
-models/
