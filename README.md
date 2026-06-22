@@ -1,3 +1,13 @@
+---
+title: Probabilistic Forecasting Engine
+emoji: 📈
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # ConformalCast: Probabilistic Forecasting Engine with Adaptive Conformal Prediction
 
 A production-grade probabilistic forecasting system that delivers calibrated prediction intervals for time series data. Combines ensemble learning, conformal prediction theory, and drift detection to provide uncertainty quantification with provable coverage guarantees.
