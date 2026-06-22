@@ -1,14 +1,3 @@
-<<<<<<< HEAD
----
-title: Probabilistic Forecasting Engine
-emoji: 📈
-colorFrom: blue
-colorTo: purple
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 <div align="center">
 
 # Probabilistic Forecasting Engine
